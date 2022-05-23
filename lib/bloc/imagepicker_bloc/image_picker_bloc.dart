@@ -19,14 +19,12 @@ class ImagePickerBloc extends Bloc<ImagePickerEvent, ImagePickerState> {
       SelectAvatarEvent event, Emitter<ImagePickerState> emit) async {
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     // ignore: non_constant_identifier_names
-    final ImageID = DateTime.now().microsecondsSinceEpoch.toString();
+    // final ImageID = DateTime.now().microsecondsSinceEpoch.toString();
     final ImagePicker _picker = ImagePicker();
 
-    Reference ref = FirebaseStorage.instance
-        .ref()
-        .child(event.id)
-        .child('/images')
-        .child('Image_$ImageID');
+    Reference ref = FirebaseStorage.instance.ref().child(event.id);
+    // .child('/images')
+    // .child('Image_$ImageID');
 
     final XFile? avatar = await _picker.pickImage(source: event.source);
 

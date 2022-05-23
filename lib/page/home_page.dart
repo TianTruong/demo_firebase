@@ -247,8 +247,8 @@ class HomePageWidget extends StatelessWidget {
                                   .catchError((error) =>
                                       print('Failed to add user: $error'));
 
-                              print(data.docs[index]['image']);
-                              print(data.docs[index].reference.id);
+                              // print(data.docs[index]['image']);
+                              // print(data.docs[index].reference.id);
 
                               final Reference ref = FirebaseStorage.instance
                                   .refFromURL(data.docs[index]['image']);
@@ -270,4 +270,3 @@ class HomePageWidget extends StatelessWidget {
     );
   }
 }
-  

@@ -95,12 +95,19 @@ class _ImageWidgetState extends State<ImageWidget> {
                         cacheHeight: 160,
                         cacheWidth: 160,
                       )
-                    : Image.network(
-                        widget.img,
-                        fit: BoxFit.cover,
-                        cacheHeight: 160,
-                        cacheWidth: 160,
-                      )),
+                    : widget.img != ''
+                        ? Image.network(
+                            widget.img,
+                            fit: BoxFit.cover,
+                            cacheHeight: 160,
+                            cacheWidth: 160,
+                          )
+                        : Image.asset(
+                            'images/intro.jpg',
+                            fit: BoxFit.cover,
+                            cacheHeight: 160,
+                            cacheWidth: 160,
+                          )),
           )),
         ),
       ],

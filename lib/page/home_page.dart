@@ -7,16 +7,10 @@ import 'package:demo_firebase/page/add_page.dart';
 import 'package:demo_firebase/page/information_page.dart';
 
 class HomePageWidget extends StatelessWidget {
-  final Stream<QuerySnapshot> users =
-      FirebaseFirestore.instance.collection('users').snapshots();
-
-  TextEditingController nameController = TextEditingController();
-  TextEditingController ageController = TextEditingController();
-  TextEditingController phoneController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey.shade300,
       appBar: AppBar(
         title: const Text('Cloud Firestore Demo'),
       ),
@@ -29,7 +23,7 @@ class HomePageWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Data from Clound Firestore',
+                  'Users ...',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                 ),
                 IconButton(
@@ -43,67 +37,98 @@ class HomePageWidget extends StatelessWidget {
                 ),
               ],
             ),
-            Expanded(
-                child: StreamBuilder<QuerySnapshot>(
-              stream: users,
-              builder: (
-                BuildContext context,
-                AsyncSnapshot<QuerySnapshot> snapshot,
-              ) {
-                if (snapshot.hasError) {
-                  return const Text('Something went wrong.');
-                }
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Text('Loading');
-                }
-
-                final data = snapshot.requireData;
-
-                return ListView.builder(
-                    itemCount: data.size,
-                    itemBuilder: (context, index) {
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: InkWell(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                      'Name: ${data.docs[index]['name']}, ${data.docs[index]['age']} year old.',
-                                      style: const TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold)),
-                                  Text('Phone: ${data.docs[index]['phone']}'),
-                                ],
-                              ),
-                              onTap: () {
-                                Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) {
-                                  return InformationWidget(
-                                      img: data.docs[index]['image'],
-                                      id: data.docs[index].reference.id);
-                                }));
-                              },
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              _updateUser(context, data, index),
-                              _deleteUser(context, data, index)
-                            ],
-                          )
-                        ],
-                      );
-                    });
-              },
-            )),
+            const UserWidget(),
+            const Padding(
+              padding: EdgeInsets.only(top: 10, bottom: 10),
+              child: Text(
+                'Posts ...',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+              ),
+            ),
+            const PostWidget()
           ],
         ),
       ),
     );
+  }
+}
+
+class UserWidget extends StatefulWidget {
+  const UserWidget({Key? key}) : super(key: key);
+
+  @override
+  State<UserWidget> createState() => _UserWidgetState();
+}
+
+class _UserWidgetState extends State<UserWidget> {
+  final Stream<QuerySnapshot> users =
+      FirebaseFirestore.instance.collection('users').snapshots();
+
+  TextEditingController nameController = TextEditingController();
+  TextEditingController ageController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        height: 200,
+        child: StreamBuilder<QuerySnapshot>(
+          stream: users,
+          builder: (
+            BuildContext context,
+            AsyncSnapshot<QuerySnapshot> snapshot,
+          ) {
+            if (snapshot.hasError) {
+              return const Text('Something went wrong.');
+            }
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Text('Loading');
+            }
+
+            final data = snapshot.requireData;
+
+            return ListView.builder(
+                itemCount: data.size,
+                itemBuilder: (context, index) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  'Name: ${data.docs[index]['name']}, ${data.docs[index]['age']} year old.',
+                                  style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold)),
+                              Text('Phone: ${data.docs[index]['phone']}'),
+                            ],
+                          ),
+                          onTap: () {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                              return InformationWidget(
+                                  index: index,
+                                  img: data.docs[index]['image'],
+                                  id: data.docs[index].reference.id);
+                            }));
+                          },
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          _updateUser(context, data, index),
+                          _deleteUser(context, data, index)
+                        ],
+                      )
+                    ],
+                  );
+                });
+          },
+        ));
   }
 
   Padding _updateUser(BuildContext context, data, index) {
@@ -252,6 +277,7 @@ class HomePageWidget extends StatelessWidget {
 
                               final Reference ref = FirebaseStorage.instance
                                   .refFromURL(data.docs[index]['image']);
+
                               await FirebaseStorage.instance
                                   .ref(ref.fullPath)
                                   .delete()
@@ -266,6 +292,60 @@ class HomePageWidget extends StatelessWidget {
                     ));
           },
         ),
+      ),
+    );
+  }
+}
+
+class PostWidget extends StatefulWidget {
+  const PostWidget({Key? key}) : super(key: key);
+
+  @override
+  State<PostWidget> createState() => _PostWidgetState();
+}
+
+class _PostWidgetState extends State<PostWidget> {
+  final Stream<QuerySnapshot> posts =
+      FirebaseFirestore.instance.collection('posts').snapshots();
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      // height: 350,
+      child: StreamBuilder<QuerySnapshot>(
+        stream: posts,
+        builder: (
+          BuildContext context,
+          AsyncSnapshot<QuerySnapshot> snapshot,
+        ) {
+          if (snapshot.hasError) {
+            return const Text('Something went wrong.');
+          }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Text('Loading');
+          }
+
+          final data_ = snapshot.requireData;
+
+          return ListView.builder(
+              itemCount: data_.size,
+              itemBuilder: (context, index_) {
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: ListTile(
+                      title: Text('Title: ${data_.docs[index_]['title']}',
+                          style: const TextStyle(fontSize: 20)),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 5, bottom: 5),
+                        child: Text('${data_.docs[index_]['status']}',
+                            style: const TextStyle(fontSize: 16)),
+                      ),
+                    ),
+                  ),
+                );
+              });
+        },
       ),
     );
   }

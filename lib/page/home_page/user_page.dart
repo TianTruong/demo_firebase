@@ -1,57 +1,7 @@
-// ignore_for_file: avoid_print, deprecated_member_use
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:demo_firebase/page/add_page.dart';
-import 'package:demo_firebase/page/information_page.dart';
-
-class HomePageWidget extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade300,
-      appBar: AppBar(
-        title: const Text('Cloud Firestore Demo'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Users ...',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.add, size: 30, color: Colors.black),
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) {
-                      return const AddUserWidget();
-                    }),
-                  ),
-                ),
-              ],
-            ),
-            const UserWidget(),
-            const Padding(
-              padding: EdgeInsets.only(top: 10, bottom: 10),
-              child: Text(
-                'Posts ...',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-              ),
-            ),
-            const PostWidget()
-          ],
-        ),
-      ),
-    );
-  }
-}
+import 'package:demo_firebase/page/information_page/information_page.dart';
 
 class UserWidget extends StatefulWidget {
   const UserWidget({Key? key}) : super(key: key);
@@ -292,60 +242,6 @@ class _UserWidgetState extends State<UserWidget> {
                     ));
           },
         ),
-      ),
-    );
-  }
-}
-
-class PostWidget extends StatefulWidget {
-  const PostWidget({Key? key}) : super(key: key);
-
-  @override
-  State<PostWidget> createState() => _PostWidgetState();
-}
-
-class _PostWidgetState extends State<PostWidget> {
-  final Stream<QuerySnapshot> posts =
-      FirebaseFirestore.instance.collection('posts').snapshots();
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      // height: 350,
-      child: StreamBuilder<QuerySnapshot>(
-        stream: posts,
-        builder: (
-          BuildContext context,
-          AsyncSnapshot<QuerySnapshot> snapshot,
-        ) {
-          if (snapshot.hasError) {
-            return const Text('Something went wrong.');
-          }
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Text('Loading');
-          }
-
-          final data_ = snapshot.requireData;
-
-          return ListView.builder(
-              itemCount: data_.size,
-              itemBuilder: (context, index_) {
-                return Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: ListTile(
-                      title: Text('Title: ${data_.docs[index_]['title']}',
-                          style: const TextStyle(fontSize: 20)),
-                      subtitle: Padding(
-                        padding: const EdgeInsets.only(top: 5, bottom: 5),
-                        child: Text('${data_.docs[index_]['status']}',
-                            style: const TextStyle(fontSize: 16)),
-                      ),
-                    ),
-                  ),
-                );
-              });
-        },
       ),
     );
   }

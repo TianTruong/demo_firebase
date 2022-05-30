@@ -8,4 +8,15 @@ class SelectAvatarEvent extends ImagePickerEvent {
   final String id;
 
   SelectAvatarEvent(this.source, this.id);
+
+}
+
+class SelectImageEvent extends ImagePickerEvent {
+  final ImageSource source;
+  // final String id;
+
+  SelectImageEvent(this.source
+  // , this.id
+  );
+
 }
